@@ -3,37 +3,33 @@ package particiona;
 import particiona.Particiona;
 import produto.Produto;
 
-public class CritDesc implements Particiona {
+public class CritPrecoCresc implements Particiona {
 
     @Override
     public int[] particionar(int i, int j, Produto x, Produto[] produtos) {
-
         do{
             j--;
 
-        } while(produtos[j].getDescricao().compareToIgnoreCase(x.getDescricao()) > 0);
+        } while(produtos[j].getPreco() > x.getPreco());
 
         do{
             i++;
 
-        } while(produtos[i].getDescricao().compareToIgnoreCase(x.getDescricao()) < 0);
+        } while(produtos[i].getPreco() < x.getPreco());
 
         int[] nuns = new int[2];
         nuns[0] = i;
         nuns[1] = j;
 
-        return nuns;
-    }
+        return nuns;    }
 
     @Override
     public int insertSort(Produto x, Produto[] produtos, int j) {
-        if (x.getDescricao().compareToIgnoreCase(produtos[j].getDescricao()) < 0) {
+        if(x.getPreco() < produtos[j].getPreco()){
 
             produtos[j + 1] = produtos[j];
             j--;
         }
-
         return j;
     }
-
 }

@@ -3,7 +3,7 @@ package particiona;
 import particiona.Particiona;
 import produto.Produto;
 
-public class CritEstoque implements Particiona {
+public class CritEstoqueCresc implements Particiona {
 
 
     @Override

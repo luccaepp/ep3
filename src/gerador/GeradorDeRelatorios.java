@@ -1,17 +1,17 @@
 package gerador;
 
-import filtro.Filtro;
-import filtro.FiltroCategoria;
-import filtro.FiltroEstoque;
-import filtro.FiltroTodos;
+import filtro.*;
 import ordenacao.InsertionSort;
 import ordenacao.Ordenacao;
 import ordenacao.QuickSort;
-import particiona.CritDesc;
-import particiona.CritEstoque;
-import particiona.CritPreco;
+import particiona.CritDescCresc;
+import particiona.CritEstoqueCresc;
+import particiona.CritPrecoCresc;
 import particiona.Particiona;
 import produto.Produto;
+import produto.decorator.ProdutoDecoratorCor;
+import produto.decorator.ProdutoDecoratorItalico;
+import produto.decorator.ProdutoDecoratorNegrito;
 import produto.ProdutoPadrao;
 
 import java.io.PrintWriter;
@@ -23,6 +23,7 @@ public class GeradorDeRelatorios {
 
 	public static final int ALG_INSERTIONSORT = 0;
 	public static final int ALG_QUICKSORT = 1;
+	private static String color;
 
 	Map<Integer, Ordenacao> algoritmo = new HashMap<Integer, Ordenacao>();
 
@@ -36,26 +37,30 @@ public class GeradorDeRelatorios {
 	public static final int FILTRO_TODOS = 0;
 	public static final int FILTRO_ESTOQUE_MENOR_OU_IQUAL_A = 1;
 	public static final int FILTRO_CATEGORIA_IGUAL_A = 2;
+	public static final int FILTRO_SUBSTRING = 3;
+	public static final int FILTRO_INTERVALO_PRECO = 4;
 
 	Map<Integer, Filtro> filtros = new HashMap<Integer, Filtro>();
 
 
 	// operador bit a bit "ou" pode ser usado para combinar mais de  
 	// um estilo de formatacao simultaneamente (veja exemplo no main)
+
 	public static final int FORMATO_PADRAO  = 0b0000;
 	public static final int FORMATO_NEGRITO = 0b0001;
 	public static final int FORMATO_ITALICO = 0b0010;
+	public static final int COR 			= 0b0100;
+
 	private static Produto[] produtos;
 
 	private Particiona particiona;
 	private Ordenacao ord;
 	private Filtro filtro;
 
-
 	private int format_flags;
 	private Object argFiltro;
 
-	public GeradorDeRelatorios(Produto [] produtos, int algoritmo, int criterio, int format_flags, int filtro, Object argFiltro){
+	public GeradorDeRelatorios(Produto [] produtos, int algoritmo, int criterio, int format_flags, int filtro, Object argFiltro, String color){
 
 		this.produtos = new Produto[produtos.length];
 		
@@ -68,18 +73,21 @@ public class GeradorDeRelatorios {
 		this.algoritmo.put(1, new QuickSort());
 		this.ord = this.algoritmo.get(algoritmo);
 
-		this.criterio.put(0, new CritDesc());
-		this.criterio.put(1, new CritPreco());
-		this.criterio.put(2, new CritEstoque());
+		this.criterio.put(0, new CritDescCresc());
+		this.criterio.put(1, new CritPrecoCresc());
+		this.criterio.put(2, new CritEstoqueCresc());
 		this.particiona = this.criterio.get(criterio);
 
 		this.filtros.put(0, new FiltroTodos());
 		this.filtros.put(1, new FiltroEstoque());
 		this.filtros.put(2, new FiltroCategoria());
+		this.filtros.put(3, new FiltroSubstring());
+		this.filtros.put(4, new FiltroPreco());
 		this.filtro = filtros.get(filtro);
 
 		this.format_flags = format_flags;
 		this.argFiltro = argFiltro;
+		this.color = color;
 	}
 
 
@@ -111,16 +119,23 @@ public class GeradorDeRelatorios {
 
 				out.print("<li>");
 
+				if((format_flags & COR) > 0){
+					out.print(new ProdutoDecoratorCor(p, color).formataParaImpressao());
+
+				}
+
 				if((format_flags & FORMATO_ITALICO) > 0){
 
-					out.print("<span style=\"font-style:italic\">");
+					out.print(new ProdutoDecoratorItalico(p).formataParaImpressao());
+
 				}
 
 				if((format_flags & FORMATO_NEGRITO) > 0){
+					out.print(new ProdutoDecoratorNegrito(p).formataParaImpressao());
+				}
 
-					out.print("<span style=\"font-weight:bold\">");
-				} 
-			
+
+
 				out.print(p.formataParaImpressao());
 
 				if((format_flags & FORMATO_NEGRITO) > 0){
@@ -132,6 +147,12 @@ public class GeradorDeRelatorios {
 
 					out.print("</span>");
 				}
+				if((format_flags & COR) > 0){
+
+					out.print("</span>");
+
+				}
+
 
 				out.println("</li>");
 				count++;
@@ -189,12 +210,14 @@ public class GeradorDeRelatorios {
 	
 		Produto [] produtos = carregaProdutos();
 
+		double [] intervaloPreco = {0.0, 49.0};
+
 		GeradorDeRelatorios gdr;
 
-		gdr = new GeradorDeRelatorios(	produtos, ALG_INSERTIONSORT, CRIT_PRECO_CRESC, 
-						FORMATO_PADRAO | FORMATO_NEGRITO |  FORMATO_ITALICO, 
+		gdr = new GeradorDeRelatorios(	produtos, ALG_INSERTIONSORT, CRIT_PRECO_CRESC,
+						FORMATO_PADRAO | FORMATO_NEGRITO | FORMATO_ITALICO | COR,
 						//FILTRO_ESTOQUE_MENOR_OU_IQUAL_A, 100);
-						FILTRO_CATEGORIA_IGUAL_A, "Livros");
+						FILTRO_INTERVALO_PRECO, intervaloPreco, "blue");
 		
 		try{
 			gdr.geraRelatorio("saida.html");
