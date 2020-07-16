@@ -1,13 +1,14 @@
-package particiona;
+package particiona.crescente;
 
 import particiona.Particiona;
+import particiona.Result;
 import produto.Produto;
 
 public class CritEstoqueCresc implements Particiona {
 
 
     @Override
-    public int[] particionar(int i, int j, Produto x, Produto[] produtos) {
+    public int[] quickSort(int i, int j, Produto x, Produto[] produtos) {
         do{
             j--;
 
@@ -26,12 +27,16 @@ public class CritEstoqueCresc implements Particiona {
     }
 
     @Override
-    public int insertSort(Produto x, Produto[] produtos, int j) {
+    public Result insertSort(Produto x, Produto[] produtos, int j) {
+        boolean breakLoop = true;
+
         if(x.getQtdEstoque() < produtos[j].getQtdEstoque()){
 
             produtos[j + 1] = produtos[j];
             j--;
+            breakLoop = false;
         }
-        return j;
+        Result result = new Result(j, produtos, breakLoop);
+        return result;
     }
 }

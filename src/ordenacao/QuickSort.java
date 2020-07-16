@@ -1,23 +1,31 @@
 package ordenacao;
 
 import particiona.Particiona;
+import particiona.Result;
 import produto.Produto;
 
 public class QuickSort implements Ordenacao {
+
+    protected Produto[] produtos;
+
     @Override
-    public void ordenar(int ini, int fim, Produto[] produtos, Particiona particiona) {
+    public Produto[] ordenar(int ini, int fim, Produto[] produtos, Particiona particiona) {
+        this.produtos = produtos;
 
         if(ini < fim) {
 
-            int q = particiona(ini, fim, produtos, particiona);
+            Result result = particionador(ini, fim, particiona);
+            int q = result.getJ();
+            this.produtos = result.getProdutos();
 
-            ordenar(ini, q, produtos, particiona);
-            ordenar(q + 1, fim, produtos, particiona);
+            this.produtos = ordenar(ini, q, produtos, particiona);
+            this.produtos = ordenar(q + 1, fim, produtos, particiona);
         }
 
+        return produtos;
     }
 
-    public int particiona(int ini, int fim, Produto[] produtos, Particiona particiona){
+    public Result particionador(int ini, int fim, Particiona particiona){
 
         Produto x = produtos[ini];
 
@@ -26,16 +34,18 @@ public class QuickSort implements Ordenacao {
 
         while(true){
 
-            int[] nuns = particiona.particionar(ini, fim, x, produtos);
-            i = nuns[0];
-            j = nuns[1];
+            int[] ij = particiona.quickSort(i, j, x, this.produtos);
+
+            i = ij[0];
+            j = ij[1];
+
 
             if(i < j){
-                Produto temp = produtos[i];
-                produtos[i] = produtos[j];
-                produtos[j] = temp;
+                Produto temp = this.produtos[i];
+                this.produtos[i] = this.produtos[j];
+                this.produtos[j] = temp;
             }
-            else return j;
+            else return new Result(j,this.produtos, false);
         }
     }
 }

@@ -4,10 +4,13 @@ import filtro.*;
 import ordenacao.InsertionSort;
 import ordenacao.Ordenacao;
 import ordenacao.QuickSort;
-import particiona.CritDescCresc;
-import particiona.CritEstoqueCresc;
-import particiona.CritPrecoCresc;
+import particiona.crescente.CritDescCresc;
+import particiona.crescente.CritEstoqueCresc;
+import particiona.crescente.CritPrecoCresc;
 import particiona.Particiona;
+import particiona.decrescente.CritDescDecresc;
+import particiona.decrescente.CritEstoqueDecresc;
+import particiona.decrescente.CritPrecoDecresc;
 import produto.Produto;
 import produto.decorator.ProdutoDecoratorCor;
 import produto.decorator.ProdutoDecoratorItalico;
@@ -30,6 +33,9 @@ public class GeradorDeRelatorios {
 	public static final int CRIT_DESC_CRESC = 0;
 	public static final int CRIT_PRECO_CRESC = 1;
 	public static final int CRIT_ESTOQUE_CRESC = 2;
+	public static final int CRIT_DESC_DECRESC = 3;
+	public static final int CRIT_PRECO_DECRESC = 4;
+	public static final int CRIT_ESTOQUE_DECRESC = 5;
 
 	Map<Integer, Particiona> criterio = new HashMap<Integer, Particiona>();
 
@@ -76,6 +82,9 @@ public class GeradorDeRelatorios {
 		this.criterio.put(0, new CritDescCresc());
 		this.criterio.put(1, new CritPrecoCresc());
 		this.criterio.put(2, new CritEstoqueCresc());
+		this.criterio.put(3, new CritDescDecresc());
+		this.criterio.put(4, new CritPrecoDecresc());
+		this.criterio.put(5, new CritEstoqueDecresc());
 		this.particiona = this.criterio.get(criterio);
 
 		this.filtros.put(0, new FiltroTodos());
@@ -93,7 +102,7 @@ public class GeradorDeRelatorios {
 
 	private void ordena(int ini, int fim){
 
-			ord.ordenar(ini, fim, produtos, particiona);
+			produtos = ord.ordenar(ini, fim, produtos, particiona);
 	}
 	
 	public void geraRelatorio(String arquivoSaida) throws IOException {
@@ -214,10 +223,10 @@ public class GeradorDeRelatorios {
 
 		GeradorDeRelatorios gdr;
 
-		gdr = new GeradorDeRelatorios(	produtos, ALG_INSERTIONSORT, CRIT_PRECO_CRESC,
+		gdr = new GeradorDeRelatorios(	produtos, ALG_QUICKSORT, CRIT_ESTOQUE_DECRESC ,
 						FORMATO_PADRAO | FORMATO_NEGRITO | FORMATO_ITALICO | COR,
 						//FILTRO_ESTOQUE_MENOR_OU_IQUAL_A, 100);
-						FILTRO_INTERVALO_PRECO, intervaloPreco, "blue");
+						FILTRO_CATEGORIA_IGUAL_A, "Livros", "blue");
 		
 		try{
 			gdr.geraRelatorio("saida.html");

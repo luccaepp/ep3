@@ -5,6 +5,6 @@ import produto.Produto;
 
 public interface Ordenacao {
 
-    void ordenar(int ini, int fim, Produto[] produtos, Particiona particiona);
+    Produto[] ordenar(int ini, int fim, Produto[] produtos, Particiona particiona);
 
 }
